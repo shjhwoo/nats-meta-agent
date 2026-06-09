@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(nats-channel:configure)",
+      "Bash(bun --version)",
+      "Bash(npm --version)",
+      "Bash(scoop --version)",
+      "Bash(winget --version)",
+      "Read(//c/Users/samsung/.claude/plugins/cache/synadia-plugins/nats-channel/0.4.0/**)",
+      "Bash(bun install *)",
+      "Bash(bun server.ts)",
+      "Bash(kill %1)",
+      "Bash(wait)",
+      "Read(//c/Scoop/shims/**)"
+    ]
+  }
+}
