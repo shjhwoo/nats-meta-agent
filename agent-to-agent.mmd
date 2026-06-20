@@ -1,0 +1,23 @@
+---
+config:
+  theme: redux
+  layout: dagre
+---
+flowchart TB
+    A(["agent A"]) -- adding comment on PR --> n1["agent A client SDK(MCP)"]
+    n1 -- "nats.Publish<br>agents.prompt.hermes.shjhwoo.session1" --> n2["NATS server"]
+    n2 --> n3["jetstream"]
+    n3 --> n5["durable consumer"] & n8["durable consumer"]
+    n5 -- "nats.Subscribe" --> n6["agent B client SDK(MCP)"]
+    n6 -- consume Comments<br>on PR --> n7(["agent B"])
+    n7 -- reply conments on<br>PR --> n6
+    n6 -- "nats.Publish</br>agents.prompt.cc.otherUser.session1" --> n2
+    n8 -- "nats.Subscribe" --> n1
+    n1 -- get reply comments --> A
+
+    n1@{ shape: rect}
+    n2@{ shape: hex}
+    n3@{ shape: cyl}
+    n5@{ shape: h-cyl}
+    n8@{ shape: h-cyl}
+    n6@{ shape: rect}
