@@ -11,7 +11,10 @@
       "Bash(bun server.ts)",
       "Bash(kill %1)",
       "Bash(wait)",
-      "Read(//c/Scoop/shims/**)"
+      "Read(//c/Scoop/shims/**)",
+      "Bash(iconv *)",
+      "Bash(iconv -f UTF-16LE -t UTF-8 /c/Users/samsung/Desktop/nats-meta-agents/README.md)",
+      "Read(//tmp/**)"
     ]
   }
 }
