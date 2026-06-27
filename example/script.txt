@@ -1,0 +1,28 @@
+  ┊ 💻 $         "$HOME/AppData/Local/hermes/hermes-agent/venv/Scripts/python.exe" - <<'PY'
+import asyncio, os
+import nats
+from synadia_ai.agents import Agents, load_context_options
+
+PROMPT = '당신은 한국어 끝말잇기 플레이어입니다. 직전 단어는 책상 입니다. 일반적인 끝말잇기 규칙으로 다음에 올 수 있는 자연스러운 한국어 명사 한 단어만 출력하세요. 설명, 따옴표, 문장부호 없이 단어만 답하세요.'
+
+async def main():
+    ctx = os.environ.get('NATS_CONTEXT', '').strip()
+    opts = load_context_options(ctx)
+    nc = await nats.connect(**opts)
+    ags = Agents(nc=nc)
+    found = await ags.discover(timeout=1.5)
+    print(f'FOUND={len(found)}')
+    agent = found[0]
+    print(f'TARGET={agent.prompt_subject}')
+    chunks = []
+    async for msg in agent.prompt(PROMPT, max_wait_s=60):
+        text = getattr(msg, 'text', None)
+        data = getattr(msg, 'data', None)
+        print(f'CHUNK_TYPE={type(msg).__name__} TEXT={text!r} DATA={data!r}')
+        if text:
+            chunks.append(text)
+    print('FINAL=' + ''.join(chunks))
+    await ags.close()
+    await nc.close()
+
+asyncio.run(main())

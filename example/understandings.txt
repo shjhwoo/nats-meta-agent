@@ -1,0 +1,114 @@
+● 그럼 이제 이런 스크립트가 설치된 에이전트는 이를 기반으로 다른 에이전트에게 
+프롬프트를 보내거나 할 수 있겠구나
+────────────────────────────────────────
+
+
+╭─ ⚕ Hermes ─────────────────────────────────────────────────────────────────────╮
+    맞아요.
+    정확히 그거예요.
+    
+    즉,
+    
+    - 어떤 에이전트에
+    - “다른 에이전트를 discover/prompt 할 수 있는 스크립트나 툴”
+    이 설치되어 있으면,
+    - 그 에이전트는 이제 단순 worker가 아니라
+    - 다른 에이전트에게 일을 시키는 coordinator/meta-agent가 될 수 있어요.
+    
+    쉽게 말하면 역할이 이렇게 바뀝니다.
+    
+    기본 에이전트
+    - 자기한테 온 prompt만 처리
+    - 혼자 일함
+    
+    조율 스크립트/툴이 설치된 에이전트
+    - 다른 agent 찾기
+    - 특정 agent 선택하기
+    - prompt 보내기
+    - 응답 모으기
+    - 필요하면 여러 agent 결과를 합치기
+    
+    즉 “agent user”가 아니라 “agent caller” 능력이 생기는 거죠.
+    
+    네가 지금 이해한 문장을 더 정확히 다듬으면 이렇습니다.
+    
+    “이런 스크립트나 툴이 설치된 에이전트는 Synadia Agent Protocol을 caller로도 사용할 수 있어서, 다른 에이전트에게 프롬프트를 보내고 응답을 받아 다시 판단하거나 다음 호출로 이어갈 수 있다.”
+    
+    이게 핵심이에요.
+    
+    그러면 가능해지는 패턴들
+    
+    1. relay
+    - A가 받은 prompt를 B에게 전달
+    - B 응답을 다시 사용자에게 반환
+    
+    2. planner-worker
+    - A가 계획 세움
+    - B에게 실행 시킴
+    - 결과 받아 요약
+    
+    3. fan-out
+    - A가 여러 agent에게 같은 질문 보냄
+    - 결과 비교/통합
+    
+    4. referee/game master
+    - A가 B/C에게 번갈아 차례를 넘기며 게임 진행
+    
+    5. supervisor
+    - 특정 agent 상태/status/hb 확인
+    - 응답 품질 보고 다음 agent 선택
+    
+    즉 진짜 중요한 건
+    “에이전트가 NATS 위에 노출되어 있다”와
+    “에이전트가 다른 에이전트를 호출할 수 있다”는 별개라는 거예요.
+    
+    - 노출만 되어 있으면: callee
+    - 호출도 할 수 있으면: caller + callee 둘 다
+    
+    네가 만들려는 건 후자입니다.
+    
+    그래서 나중에 어떤 에이전트에 이 기능이 들어가면,
+    그 에이전트는 이런 식으로 행동할 수 있어요.
+    
+    예:
+    - “research agent를 찾아서 이 주제를 조사해”
+    - “session-b에게 다음 차례를 넘겨”
+    - “모든 hermes 세션에게 같은 prompt를 보내고 결과를 비교해”
+    - “worker agent 하나 골라서 작업 위임해”
+    
+    즉 meta-agent가 되는 거죠.
+    
+    실전적으로는 이런 계층으로 보면 좋아요.
+    
+    레벨 1: plain agent
+    - 응답만 함
+    
+    레벨 2: protocol-aware agent
+    - 다른 agent discover/prompt 가능
+    
+    레벨 3: orchestrator agent
+    - 여러 agent를 조합해서 workflow 수행
+    
+    지금 너는 레벨 2로 올라가는 길을 보고 있는 거예요.
+    그리고 끝말잇기는 레벨 2를 배우는 아주 좋은 예시고요.
+    
+    그래서 다음 액션은 정말 명확합니다.
+    
+    1. standalone coordinator script로 끝말잇기 돌아가게 한다
+    2. 그 script를 함수 단위로 정리한다
+    3. 필요하면 Hermes tool/plugin으로 감싼다
+    4. 그러면 그 Hermes는 다른 agent를 부리는 meta-agent가 된다
+    
+    네 이해는 지금 거의 정확하게 정리됐어요.
+    
+    다음 턴에서 할 만한 가장 좋은 건:
+    “그럼 끝말잇기 coordinator script의 최소 기능은 뭐냐?”
+    이걸 함수 단위로 나누는 겁니다.
+    
+    예를 들면 이런 수준으로요:
+    - connect_nats()
+    - discover_players()
+    - prompt_player()
+    - extract_word()
+    - validate_turn()
+    - run_match()
